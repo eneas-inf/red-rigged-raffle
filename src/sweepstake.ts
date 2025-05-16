@@ -7,7 +7,10 @@ export class Sweepstake {
   ) {}
 
   public evaluate(): Map<string, string> {
-    const winners = new Map<string, string>();
+    return this.assignPrices(this.shuffleParticipants());
+  }
+
+  private shuffleParticipants() {
     const shuffledParticipants = new Array<string>();
     while (this.participants.length > 0) {
       const randomNum = Math.random();
@@ -18,16 +21,25 @@ export class Sweepstake {
       shuffledParticipants.push(participant);
       this.participants.pop();
     }
+    return shuffledParticipants;
+  }
+
+  private assignPrices(shuffledParticipants: string[]) {
+    const winners = new Map<string, string>();
     while (this.prices.length > 0 && shuffledParticipants.length > 0) {
       const currentPrice = this.prices[0];
       const winner = shuffledParticipants.shift();
       winners.set(winner, currentPrice.priceName);
-      if (currentPrice.availableAmount > 0) {
-        this.prices.shift();
-      } else {
-        this.prices[0].availableAmount--;
-      }
+      this.removeFirstPrice();
     }
     return winners;
+  }
+
+  private removeFirstPrice() {
+    if (this.prices[0].availableAmount > 0) {
+      this.prices.shift();
+    } else {
+      this.prices[0].availableAmount--;
+    }
   }
 }
